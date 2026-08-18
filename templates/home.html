@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BS BioShifting — Home</title>
+  <meta name="description"
+    content="Recent verification scans and quick access to start a new age-invariant identity check.">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+  <canvas id="particles-canvas"></canvas>
+  <div class="tech-bg-container">
+    <div class="tech-face tech-face-legacy"></div>
+    <div class="tech-face tech-face-progressed"></div>
+  </div>
+
+  <div class="app-shell">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <a href="/home" class="brand" style="text-decoration:none; color:inherit;">
+          <div class="mark"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 5H5V7 M17 5H19V7 M7 19H5V17 M17 19H19V17" stroke="#fff" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M12 3 L7 8 L17 8 Z" stroke="#fff" stroke-width="0.75" stroke-linejoin="round" />
+              <path d="M7 8 L9.5 10.5 L12 12 L14.5 10.5 L17 8" stroke="#fff" stroke-width="0.75"
+                stroke-linejoin="round" />
+              <path d="M7 8 L8 14 L16 14 L17 8" stroke="#fff" stroke-width="0.75" stroke-linejoin="round" />
+              <path d="M8 14 L12 12 L16 14" stroke="#fff" stroke-width="0.75" stroke-linejoin="round" />
+              <path d="M8 14 L12 17 L16 14" stroke="#fff" stroke-width="0.75" stroke-linejoin="round" />
+              <path d="M12 12 L12 21" stroke="#fff" stroke-width="0.75" stroke-linejoin="round" />
+              <path d="M8 14 L12 21 L16 14" stroke="#fff" stroke-width="0.75" stroke-linejoin="round" />
+              <circle cx="12" cy="3" r="1.2" fill="#fff" />
+              <circle cx="7" cy="8" r="1.2" fill="#fff" />
+              <circle cx="17" cy="8" r="1.2" fill="#fff" />
+              <circle cx="9.5" cy="10.5" r="0.8" fill="#fff" />
+              <circle cx="14.5" cy="10.5" r="0.8" fill="#fff" />
+              <circle cx="12" cy="12" r="1.2" fill="#fff" />
+              <circle cx="8" cy="14" r="1.2" fill="#fff" />
+              <circle cx="16" cy="14" r="1.2" fill="#fff" />
+              <circle cx="12" cy="17" r="0.8" fill="#fff" />
+              <circle cx="12" cy="21" r="1.2" fill="#fff" />
+            </svg></div>BioShifting
+        </a>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn theme-toggle" title="Toggle Theme">
+          <svg class="sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+            <circle cx="12" cy="12" r="5" />
+            <line x1="12" y1="1" x2="12" y2="3" />
+            <line x1="12" y1="21" x2="12" y2="23" />
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+            <line x1="1" y1="12" x2="3" y2="12" />
+            <line x1="21" y1="12" x2="23" y2="12" />
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+          </svg>
+          <svg class="moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+        </button>
+        <button class="icon-btn" id="home-logout-btn" title="Log out">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" />
+            <path d="M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="content">
+      <span class="eyebrow">Welcome back</span>
+      <h1 class="h1">Scan Portal</h1>
+      <div class="sub">Start a new age-invariant verification, or review recent activity below.</div>
+
+      <button class="btn btn-primary" id="new-scan-cta"
+        style="width:100%; margin-top:22px; padding:16px; font-size:15px; display:flex; align-items:center; justify-content:center; gap:8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        New Scan
+      </button>
+
+      <button class="btn btn-ghost" id="age-estimator-toggle-btn"
+        style="width:100%; margin-top:10px; padding:14px; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" />
+          <path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+        Estimate Photo Age
+      </button>
+
+      <div id="home-list-section">
+        <div class="section-divider" style="margin-top:32px;">Recent Scans</div>
+        <div class="scan-card-list" id="home-scan-list">
+          <div style="color:var(--text-faint);">Loading…</div>
+        </div>
+      </div>
+
+      <!-- Detail View (Step 9: tap a scan to open detail) -->
+      <div id="home-detail-panel" style="display:none;margin-top:20px;">
+        <div class="card" style="padding:24px;">
+          <a class="small-link" href="#" id="home-detail-back" style="margin:0;">← Back to recent scans</a>
+          <div style="margin-top:14px;">
+            <span class="eyebrow" id="hd-case-id">SCN-0000</span>
+            <h2 class="h1" id="hd-case-name" style="font-size:18px;">Case</h2>
+            <div class="sub" id="hd-date" style="margin-top:0;">—</div>
+          </div>
+
+          <div class="compare-admin" style="margin-top:16px;">
+            <div class="box"><img id="hd-legacy-img" src="" alt="" onerror="this.style.opacity=0.3">
+              <div class="cap">Legacy Reference</div>
+            </div>
+            <div class="box"><img id="hd-generated-img" src="" alt="" onerror="this.style.opacity=0.3">
+              <div class="cap">Age-Progressed</div>
+            </div>
+            <div class="box"><img id="hd-live-img" src="" alt="" onerror="this.style.opacity=0.3">
+              <div class="cap">Present Capture</div>
+            </div>
+          </div>
+
+          <div class="stat-grid" style="margin-top:16px;">
+            <div class="stat-box">
+              <div class="val" id="hd-score">—</div>
+              <div class="lab">Similarity Score</div>
+            </div>
+            <div class="stat-box">
+              <div class="val" id="hd-gap">—</div>
+              <div class="lab">Age Gap</div>
+            </div>
+          </div>
+          <div style="margin-top:14px;"><span class="result-badge pending" id="hd-badge">—</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+  <script src="/static/js/home.js"></script>
+  <script src="/static/js/particles.js"></script>
+</body>
+
+</html>

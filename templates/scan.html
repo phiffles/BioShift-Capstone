@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BS BioShifting — New Scan</title>
+  <meta name="description" content="Upload legacy and present photos for age-invariant face verification.">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<canvas id="particles-canvas"></canvas>
+
+<!-- History Overlay & Drawer -->
+<div class="history-overlay" id="history-overlay"></div>
+<div class="history-drawer" id="history-drawer">
+  <div class="history-header">
+    <div><span class="eyebrow" style="margin-bottom:2px;">Archive</span><div style="font-family:var(--f-display);font-weight:700;font-size:16px;">Scan History</div></div>
+    <button class="icon-btn" id="history-close-btn" title="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+  </div>
+  <div class="history-list" id="history-list"><div class="empty-state"><div class="es-icon">◎</div><p>No scans yet.</p></div></div>
+</div>
+
+<div class="app-shell">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <a href="/home" class="brand" style="text-decoration:none; color:inherit;"><div class="mark"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 5H5V7 M17 5H19V7 M7 19H5V17 M17 19H19V17" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 3 L7 8 L17 8 Z" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/><path d="M7 8 L9.5 10.5 L12 12 L14.5 10.5 L17 8" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/><path d="M7 8 L8 14 L16 14 L17 8" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/><path d="M8 14 L12 12 L16 14" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/><path d="M8 14 L12 17 L16 14" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/><path d="M12 12 L12 21" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/><path d="M8 14 L12 21 L16 14" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/><circle cx="12" cy="3" r="1.2" fill="#fff"/><circle cx="7" cy="8" r="1.2" fill="#fff"/><circle cx="17" cy="8" r="1.2" fill="#fff"/><circle cx="9.5" cy="10.5" r="0.8" fill="#fff"/><circle cx="14.5" cy="10.5" r="0.8" fill="#fff"/><circle cx="12" cy="12" r="1.2" fill="#fff"/><circle cx="8" cy="14" r="1.2" fill="#fff"/><circle cx="16" cy="14" r="1.2" fill="#fff"/><circle cx="12" cy="17" r="0.8" fill="#fff"/><circle cx="12" cy="21" r="1.2" fill="#fff"/></svg></div>BioShifting</a>
+    </div>
+    <div class="topbar-actions">
+      <span class="badge badge-info" id="device-badge" style="font-size:10px;">CPU</span>
+      <button class="icon-btn theme-toggle" title="Toggle Theme">
+        <svg class="sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg class="moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <button class="icon-btn" id="history-toggle-btn" title="History"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/></svg></button>
+    </div>
+  </div>
+
+  <!-- Step Progress -->
+  <div class="step-progress">
+    <div class="step-item">
+      <div class="step-dot active">1</div>
+      <div class="step-label active">Direction</div>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-dot">2</div>
+      <div class="step-label">Legacy</div>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-dot">3</div>
+      <div class="step-label">Present</div>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-dot">4</div>
+      <div class="step-label">Age</div>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-dot">5</div>
+      <div class="step-label">Process</div>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-dot">6</div>
+      <div class="step-label">Results</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ STEP 1: DIRECTION ═══════════════ -->
+  <div class="step-panel active" id="step-1">
+    <div class="content form-content">
+      <span class="eyebrow">Step 1 of 6 · Direction</span>
+      <h1 class="h1">Age Progression or Regression?</h1>
+      <div class="sub">Choose whether you want to age the legacy photo forward or backward in time. This decides how the model shapes the result.</div>
+
+      <div class="direction-grid" style="margin-top:22px;">
+        <div class="direction-card selected" id="dir-older">
+          <span class="dir-icon">⏩</span>
+          <div class="dir-title">Age Progression</div>
+          <div class="dir-sub">Make the person look older</div>
+        </div>
+        <div class="direction-card" id="dir-younger">
+          <span class="dir-icon">⏪</span>
+          <div class="dir-title">Age Regression</div>
+          <div class="dir-sub">Make the person look younger</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ STEP 2: LEGACY PHOTO ═══════════════ -->
+  <div class="step-panel" id="step-2">
+    <div class="content form-content">
+      <span class="eyebrow">Step 2 of 6 · Legacy Photo</span>
+      <h1 class="h1">Add the Legacy Photo
+        <span class="help-tip" tabindex="0">
+          <span class="help-tip-btn" aria-label="What counts as a legacy photo?">?</span>
+          <span class="help-tip-pop" role="tooltip">
+            <svg class="help-tip-icon" viewBox="0 0 64 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="2" width="60" height="36" rx="4" stroke="currentColor" stroke-width="2"/>
+              <circle cx="16" cy="16" r="7" stroke="currentColor" stroke-width="2"/>
+              <path d="M7 32c1.5-6 6-9 9-9s7.5 3 9 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <line x1="32" y1="12" x2="56" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+              <line x1="32" y1="19" x2="52" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+              <line x1="32" y1="26" x2="48" y2="26" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+            </svg>
+            <div class="help-tip-title">What counts as "legacy"?</div>
+            <div class="help-tip-text">An older photo of the person — e.g. an ID card or passport scan, a childhood photo, or a faded print. It doesn't need to be recent, just clear enough to show the face.</div>
+          </span>
+        </span>
+      </h1>
+      <div class="sub">Upload or capture one or more historical/legacy photos of the person (up to 5). Each will be age-progressed and compared against the present photo — the best match is used, and the rest are kept for reference.</div>
+
+      <!-- Mode switch — upload leads, camera is the alternative -->
+      <div class="controls-row" style="margin-top:20px; display:flex; gap:8px;">
+        <button class="btn btn-primary btn-sm" id="legacy-mode-upload-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="margin-right:4px;"><path d="M12 15V4M12 4l-4 4M12 4l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15v3a2 2 0 002 2h12a2 2 0 002-2v-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Upload</button>
+        <button class="btn btn-ghost btn-sm" id="legacy-mode-camera-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="margin-right:4px;"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2"/></svg>Camera</button>
+      </div>
+
+      <!-- Upload Mode (shown first) -->
+      <div id="legacy-upload-mode">
+        <div class="dropzone" id="legacy-dropzone" style="margin-top:16px;" tabindex="0" role="button">
+          <div class="dz-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M12 15V4M12 4l-4 4M12 4l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15v3a2 2 0 002 2h12a2 2 0 002-2v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <div class="dz-label">Drag & drop or click to upload</div>
+          <div class="dz-hint">Accepted files: .jpg, .jpeg, .png · Up to 5 photos · Legacy ID scans, old photos, prints</div>
+        </div>
+        <input type="file" id="legacy-file-input" accept=".jpg,.jpeg,.png,image/jpeg,image/png" multiple>
+      </div>
+
+      <!-- Camera Mode -->
+      <div id="legacy-camera-mode" style="display:none;">
+        <div class="capture-stage" style="margin-top:16px;">
+          <video id="legacy-video" autoplay playsinline muted></video>
+          <img id="legacy-captured-img" class="captured" style="display:none;">
+          <div class="capture-overlay"><div class="face-guide"></div><div class="scan-sweep"></div></div>
+        </div>
+        <canvas id="legacy-canvas" style="display:none;"></canvas>
+
+        <div class="card" id="legacy-camera-fallback" style="display:none; margin-top:14px;">
+          <div class="sub" style="color:var(--warn); margin-top:0;">Couldn't access your camera.</div>
+          <button class="btn btn-primary" style="margin-top:10px;" onclick="document.getElementById('legacy-mode-upload-btn').click()">Switch to Upload</button>
+        </div>
+
+        <div class="btn-row" id="legacy-camera-capture-row" style="margin-top:12px; display:flex;">
+          <button class="btn btn-primary" id="legacy-camera-capture-btn" style="width:100%;">Capture Legacy Photo</button>
+        </div>
+        <div class="btn-row" id="legacy-camera-review-row" style="margin-top:12px; display:none;">
+          <button class="btn btn-ghost" id="legacy-camera-retake-btn">Retake</button>
+          <button class="btn btn-primary" id="legacy-camera-use-btn">Add This Photo</button>
+        </div>
+      </div>
+
+      <div class="helper" id="legacy-max-note" style="display:none;">Maximum of 5 photos reached — remove one to add another.</div>
+
+      <div class="legacy-photo-grid" id="legacy-photo-grid" style="display:none;"></div>
+    </div>
+    <div class="bottom-bar">
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="step2-back-to-direction-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Back</button>
+        <button class="btn btn-primary" id="step1-next-btn" disabled>Next — Add Present Photo <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="margin-left:4px;"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ STEP 3: PRESENT PHOTO ═══════════════ -->
+  <div class="step-panel" id="step-3">
+    <div class="content form-content">
+      <span class="eyebrow">Step 3 of 6 · Present Photo</span>
+      <h1 class="h1" id="step2-heading">Scan the Present Photo</h1>
+      <div class="sub" id="step2-sub">Center your face in the frame — the scan starts automatically.</div>
+
+      <!-- Live Scan Mode (shown first) -->
+      <div id="scan-screen">
+        <div class="capture-stage" style="margin-top:16px;">
+          <video id="live-video" autoplay playsinline muted></video>
+          <img id="captured-img" class="captured" style="display:none;">
+          <div class="capture-overlay"><div class="face-guide"></div><div class="scan-sweep"></div></div>
+          <div class="fqa-feedback"><div class="fqa-pill" id="fqa-pill"><span class="fqa-dot"></span><span id="fqa-text">Initializing…</span></div></div>
+        </div>
+        <canvas id="fqa-canvas" style="display:none;"></canvas>
+
+        <div class="fqa-checklist">
+          <div class="fqa-item" data-k="light"><span class="dot"></span>Lighting is even and bright enough</div>
+          <div class="fqa-item" data-k="pose"><span class="dot"></span>Head pose is straight-on, no tilt</div>
+          <div class="fqa-item" data-k="eye"><span class="dot"></span>Eyes level and centered in frame</div>
+          <div class="fqa-item" data-k="blur"><span class="dot"></span>Image sharpness within range</div>
+        </div>
+
+        <div id="camera-fallback" style="display:none;margin-top:14px;" class="card">
+          <div class="sub" style="color:var(--warn);margin-top:0;">Couldn't access your camera.</div>
+          <button class="btn btn-primary" style="margin-top:10px;" onclick="document.getElementById('switch-to-upload').click()">Switch to Upload</button>
+        </div>
+        <a class="small-link" href="#" id="switch-to-upload">Switch to upload instead</a>
+      </div>
+
+      <!-- Upload Mode (fallback) -->
+      <div id="upload-screen" style="display:none;">
+        <div class="dropzone" id="live-upload-dropzone" style="margin-top:16px;" tabindex="0" role="button">
+          <div class="dz-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M12 15V4M12 4l-4 4M12 4l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15v3a2 2 0 002 2h12a2 2 0 002-2v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <div class="dz-label">Upload a photo</div>
+          <div class="dz-hint">Accepted files: .jpg, .jpeg, .png · A recent, clear photo of the person</div>
+        </div>
+        <input type="file" id="live-upload-file-input" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
+
+        <div class="preview-container" id="live-upload-preview-wrap" style="display:none;">
+          <img id="live-upload-preview-img" alt="Present photo">
+          <button class="preview-remove" id="live-upload-remove-btn" title="Remove">✕</button>
+        </div>
+        <a class="small-link" href="#" id="switch-to-scan">Switch to live scan instead</a>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <div class="btn-row" style="display:none;" id="capture-row">
+        <button class="btn btn-ghost" id="step2-back-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Back</button>
+        <button class="btn btn-primary" id="capture-btn" disabled>Capture Photo</button>
+      </div>
+      <div class="btn-row" style="display:none;" id="review-row">
+        <button class="btn btn-ghost" id="retake-btn">Retake</button>
+        <button class="btn btn-primary" id="use-photo-btn">Use Photo</button>
+      </div>
+      <div class="btn-row" style="display:none;" id="upload-row">
+        <button class="btn btn-ghost" id="step2-back-btn-upload" onclick="document.getElementById('step2-back-btn').click()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Back</button>
+        <button class="btn btn-primary" id="step2-use-upload-btn" disabled>Use This Photo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ STEP 4: AGE TARGET ═══════════════ -->
+  <div class="step-panel" id="step-4">
+    <div class="content form-content">
+      <span class="eyebrow">Step 4 of 6 · Age Target</span>
+      <h1 class="h1">Age Target</h1>
+      <div class="sub">Enter the age shown in the legacy photo, and the age you want to progress or regress it to.</div>
+
+      <div class="field" style="margin-top:22px;">
+        <label>Age in Legacy Photo</label>
+        <input class="input" type="number" id="current-age-input" min="1" max="100" value="10">
+        <div class="helper">Not sure? Use the auto-estimate from your legacy photo below, or try the standalone Age Estimator from the Scan Portal.</div>
+        <div class="age-estimate-hint" id="legacy-age-hint" style="display:none;">
+          <span class="age-estimate-icon">✨</span>
+          <span id="legacy-age-hint-text">Estimating age from your legacy photo…</span>
+          <button class="btn btn-ghost btn-sm" id="legacy-age-use-btn" type="button" style="display:none;">Use this</button>
+        </div>
+      </div>
+
+      <div class="slider-group" style="margin-top:22px;">
+        <div class="slider-header">
+          <label for="target-age-value">Target Age</label>
+          <input class="slider-value" type="number" id="target-age-value" value="40"
+            min="1" max="100" step="1" inputmode="numeric" aria-label="Target age">
+        </div>
+        <input type="range" id="target-age-slider" min="1" max="100" value="40">
+        <div class="slider-labels"><span>1</span><span>100</span></div>
+        <div class="age-estimate-hint" id="present-age-hint" style="display:none;">
+          <span class="age-estimate-icon">✨</span>
+          <span id="present-age-hint-text">Estimating age from your present photo…</span>
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:22px;">
+        <label>Case Name (optional)</label>
+        <input class="input" type="text" id="case-name-input" placeholder="e.g. Reference Case #1043">
+      </div>
+      <div class="field">
+        <label>Notes (optional)</label>
+        <textarea class="input" id="notes-input" rows="3" placeholder="Case number, notes for this verification…"></textarea>
+      </div>
+
+      <!-- ═══ Biometric Data Consent ═══ -->
+      <div class="consent-card" id="consent-card">
+        <div class="consent-header">
+          <div class="consent-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="consent-title">Biometric Data Consent</div>
+            <div class="consent-subtitle">Required before processing</div>
+          </div>
+        </div>
+        <div class="consent-text" id="consent-text-content">
+          <p>By proceeding, you acknowledge and consent to the following:</p>
+          <ul>
+            <li><strong>Data collected:</strong> Facial images (legacy photo and present photo) and derived biometric data (face embeddings, age-progressed images).</li>
+            <li><strong>Purpose:</strong> Age-invariant identity verification — comparing an age-progressed version of the legacy photo against the present photo to assess identity similarity.</li>
+            <li><strong>Processing:</strong> Images are processed locally on this device using AI models (SAM age progression, InsightFace face verification). No data is transmitted to external servers.</li>
+            <li><strong>Storage:</strong> All photos and results are stored locally in the application database. Data may be reviewed by authorized administrators through the discrepancy queue.</li>
+            <li><strong>Retention:</strong> Data is retained until manually deleted by an administrator.</li>
+          </ul>
+        </div>
+        <label class="consent-check" for="consent-checkbox">
+          <input type="checkbox" id="consent-checkbox">
+          <span class="consent-checkmark"></span>
+          <span>I consent to the processing of biometric data as described above</span>
+        </label>
+      </div>
+    </div>
+    <div class="bottom-bar">
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="step3-back-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Back</button>
+        <button class="btn btn-primary" id="step3-run-btn" disabled>Run Verification <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="margin-left:4px;"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ STEP 5: PROCESSING ═══════════════ -->
+  <div class="step-panel" id="step-5">
+    <div class="content form-content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-top:40px;">
+
+      <div class="proc-stage" id="proc-stage">
+        <div class="proc-orb-wrap">
+          <div class="ai-orb" id="futuristic-orb">
+            <img id="futuristic-img" src="" alt="">
+            <img id="futuristic-img-b" src="" alt="">
+            <div class="orb-scan-line"></div>
+          </div>
+          <div class="orb-age-tag" id="orb-age-tag">Age —</div>
+        </div>
+
+        <div class="proc-vs-wrap" id="proc-vs-wrap">
+          <div class="proc-vs-line"></div>
+          <div class="proc-vs-badge">VS</div>
+        </div>
+
+        <div class="proc-orb-wrap" id="current-orb-wrap">
+          <div class="ai-orb ai-orb-current" id="current-orb">
+            <img id="current-orb-img" src="" alt="">
+          </div>
+          <div class="orb-age-tag">Present</div>
+        </div>
+      </div>
+
+      <div class="progress-header" style="display:flex; justify-content:space-between; align-items:baseline;">
+        <div class="progress-pct" id="pipeline-pct" style="font-size:36px; font-weight:600; color:var(--text); letter-spacing:-0.02em;">0%</div>
+        <div class="progress-timer" id="pipeline-timer" style="font-family:var(--f-mono); font-size:12px; color:var(--text-faint);">00:00 elapsed</div>
+      </div>
+
+      <div class="pipeline-progress-wrap" style="margin-top:12px; margin-bottom:32px; background:var(--panel-2); height:6px; border-radius:3px; overflow:hidden;">
+        <div class="pipeline-progress-fill" id="pipeline-progress" style="width:0%; height:100%; background:var(--accent); transition:width 0.4s ease;"></div>
+      </div>
+
+      <div class="processing-steps detailed-steps" id="pipeline-steps" style="display:flex; flex-direction:column; gap:16px;">
+        <div class="fqa-item"><span class="dot"></span>Loading photos</div>
+        <div class="fqa-item"><span class="dot"></span>Detecting and aligning faces</div>
+        <div class="fqa-item"><span class="dot"></span>Running age progression</div>
+        <div class="fqa-item"><span class="dot"></span>Extracting face embeddings</div>
+        <div class="fqa-item"><span class="dot"></span>Scoring similarity</div>
+        <div class="fqa-item"><span class="dot"></span>Saving result</div>
+      </div>
+
+      <div class="error-alert" id="pipeline-error" style="display:none;margin-top:20px;">
+        <span class="ea-icon">⚠</span>
+        <span class="ea-text">An error occurred.</span>
+      </div>
+
+      <div style="margin-top:40px; padding-top:24px; border-top:1px solid var(--border);">
+        <button class="btn btn-ghost" id="pipeline-cancel-btn" style="color:var(--text-muted);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="margin-right:6px;"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Cancel run</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ STEP 6: RESULTS ═══════════════ -->
+  <div class="step-panel" id="step-6">
+    <div class="content">
+      <span class="eyebrow">Step 6 of 6 · Results</span>
+      <h1 class="h1">Verification Result</h1>
+
+      <div class="result-hero" style="margin-top:12px;">
+        <div class="result-badge pass" id="res-badge">✓ Same Person</div>
+        <div class="score-big" id="res-score">—</div>
+        <div class="score-label">Similarity Confidence</div>
+      </div>
+
+      <!-- Confidence bar -->
+      <div class="confidence-bar-wrap">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+          <span style="font-family:var(--f-mono);font-size:10px;color:var(--text-faint);">0%</span>
+          <span style="font-family:var(--f-mono);font-size:10px;color:var(--text-faint);">100%</span>
+        </div>
+        <div class="confidence-bar-bg"><div class="confidence-bar-fill" id="res-bar-fill" style="width:0%;"></div></div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stat-grid">
+        <div class="stat-box"><div class="val" id="res-age">—</div><div class="lab">Person Age</div></div>
+        <div class="stat-box"><div class="val" id="res-gap">—</div><div class="lab">Est. Age Gap</div></div>
+        <div class="stat-box"><div class="val" id="res-threshold">—</div><div class="lab">Threshold</div></div>
+        <div class="stat-box"><div class="val" id="res-status">—</div><div class="lab">Status</div></div>
+      </div>
+
+      <!-- 2-column comparison -->
+      <div class="section-divider" style="margin-top:24px;">Photo Comparison</div>
+      <div class="helper" id="res-multi-note" style="display:none; text-align:center; margin-top:-4px;"></div>
+      <div class="compare-row" style="gap:16px;">
+        <!-- Slider Column -->
+        <div class="compare-col">
+          <div class="img-slider-container">
+            <!-- Base Image: Generated -->
+            <img id="res-generated-img" src="" alt="Generated" class="img-slider-base">
+            <!-- Overlay Image: Legacy -->
+            <img id="res-legacy-img" src="" alt="Legacy" class="img-slider-overlay">
+
+            <input type="range" min="0" max="100" value="50" class="img-slider-input" id="res-slider-input">
+
+            <div class="img-slider-handle" id="res-slider-handle">
+              <div class="img-slider-handle-line"></div>
+            </div>
+
+            <div class="img-slider-label label-left">Legacy</div>
+            <div class="img-slider-label label-right">Generated</div>
+          </div>
+          <div class="cap">Legacy ↔ Generated</div>
+        </div>
+
+        <!-- Present Column -->
+        <div class="compare-col">
+          <img id="res-live-img" src="" alt="Present">
+          <div class="cap">Present</div>
+        </div>
+      </div>
+
+      <div class="section-divider" style="margin-top:28px;">Done</div>
+      <button class="btn btn-ghost" id="new-scan-btn" style="margin-top:4px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Start New Scan
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script src="/static/js/app.js"></script>
+<script src="/static/js/scan.js"></script>
+<script src="/static/js/particles.js"></script>
+</body>
+</html>

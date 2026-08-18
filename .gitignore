@@ -1,0 +1,22 @@
+# Large model weights — download separately, never commit
+SAM/pretrained_models/*.pt
+SAM/pretrained_models/*.pth
+SAM/shape_predictor_68_face_landmarks.dat
+face_reaging/face_landmarker.task
+
+# Calibration dataset (UTKFace, ~107 MB tarball + extracted images).
+# The fitted curve itself, age_calibration/age_calibration.json, IS committed.
+age_calibration/calibration_data/
+
+# Generated + user data
+image_folder/
+history.db
+history.db.bak
+*.db-wal
+*.db-shm
+
+__pycache__/
+*.pyc
+
+# Local assistant settings
+.claude/

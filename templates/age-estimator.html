@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BS BioShifting — Age Estimator</title>
+  <meta name="description"
+    content="Estimate the age of a face in a photo using the DEX age classifier.">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+  <canvas id="particles-canvas"></canvas>
+  <div class="tech-bg-container">
+    <div class="tech-face tech-face-legacy"></div>
+    <div class="tech-face tech-face-progressed"></div>
+  </div>
+
+  <div class="app-shell">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <a href="/home" class="brand" style="text-decoration:none; color:inherit;">
+          <div class="mark"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 5H5V7 M17 5H19V7 M7 19H5V17 M17 19H19V17" stroke="#fff" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M12 3 L7 8 L17 8 Z" stroke="#fff" stroke-width="0.75" stroke-linejoin="round" />
+              <path d="M7 8 L9.5 10.5 L12 12 L14.5 10.5 L17 8" stroke="#fff" stroke-width="0.75"
+                stroke-linejoin="round" />
+              <path d="M7 8 L8 14 L16 14 L17 8" stroke="#fff" stroke-width="0.75" stroke-linejoin="round" />
+              <path d="M8 14 L12 12 L16 14" stroke="#fff" stroke-width="0.75" stroke-linejoin="round" />
+              <path d="M8 14 L12 17 L16 14" stroke="#fff" stroke-width="0.75" stroke-linejoin="round" />
+              <path d="M12 12 L12 21" stroke="#fff" stroke-width="0.75" stroke-linejoin="round" />
+              <path d="M8 14 L12 21 L16 14" stroke="#fff" stroke-width="0.75" stroke-linejoin="round" />
+              <circle cx="12" cy="3" r="1.2" fill="#fff" />
+              <circle cx="7" cy="8" r="1.2" fill="#fff" />
+              <circle cx="17" cy="8" r="1.2" fill="#fff" />
+              <circle cx="9.5" cy="10.5" r="0.8" fill="#fff" />
+              <circle cx="14.5" cy="10.5" r="0.8" fill="#fff" />
+              <circle cx="12" cy="12" r="1.2" fill="#fff" />
+              <circle cx="8" cy="14" r="1.2" fill="#fff" />
+              <circle cx="16" cy="14" r="1.2" fill="#fff" />
+              <circle cx="12" cy="17" r="0.8" fill="#fff" />
+              <circle cx="12" cy="21" r="1.2" fill="#fff" />
+            </svg></div>BioShifting
+        </a>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn theme-toggle" title="Toggle Theme">
+          <svg class="sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+            <circle cx="12" cy="12" r="5" />
+            <line x1="12" y1="1" x2="12" y2="3" />
+            <line x1="12" y1="21" x2="12" y2="23" />
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+            <line x1="1" y1="12" x2="3" y2="12" />
+            <line x1="21" y1="12" x2="23" y2="12" />
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+          </svg>
+          <svg class="moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="content">
+      <span class="eyebrow">Standalone tool</span>
+      <h1 class="h1">Age Estimator</h1>
+      <div class="sub">Center your face in the frame and capture — the DEX classifier estimates the
+        age of the largest face it finds. You can upload a photo instead.</div>
+
+      <!-- Mode switch — the live scan leads, upload is the fallback -->
+      <div class="controls-row" style="margin-top:20px; display:flex; gap:8px;">
+        <button class="btn btn-primary btn-sm" id="ae-mode-camera-btn">Scan Face</button>
+        <button class="btn btn-ghost btn-sm" id="ae-mode-upload-btn">Upload Photo</button>
+      </div>
+
+      <!-- Camera mode (shown first) -->
+      <div id="ae-camera-mode" style="display:block;">
+        <div class="capture-stage" style="margin-top:16px;">
+          <video id="ae-video" autoplay playsinline muted></video>
+          <img id="ae-captured-img" class="captured" style="display:none;">
+          <div class="capture-overlay">
+            <div class="face-guide"></div>
+            <div class="scan-sweep"></div>
+          </div>
+          <div class="fqa-feedback">
+            <div class="fqa-pill" id="ae-camera-status">
+              <span class="fqa-dot"></span><span id="ae-camera-status-text">Starting camera…</span>
+            </div>
+          </div>
+        </div>
+        <canvas id="ae-canvas" style="display:none;"></canvas>
+
+        <div class="card" id="ae-camera-fallback" style="display:none; margin-top:14px;">
+          <div class="sub" style="color:var(--warn); margin-top:0;">Couldn't access your camera.</div>
+          <button class="btn btn-primary" style="margin-top:10px;"
+            onclick="document.getElementById('ae-mode-upload-btn').click()">Switch to Upload</button>
+        </div>
+
+        <div class="btn-row" id="ae-camera-capture-row" style="margin-top:12px; display:flex;">
+          <button class="btn btn-primary" id="ae-camera-capture-btn" style="width:100%;">Capture</button>
+        </div>
+        <div class="btn-row" id="ae-camera-retake-row" style="margin-top:12px; display:none;">
+          <button class="btn btn-ghost" id="ae-camera-retake-btn" style="width:100%;">Retake</button>
+        </div>
+      </div>
+
+      <!-- Upload mode (secondary) -->
+      <div id="ae-upload-mode" style="display:none;">
+        <div class="dropzone" id="ae-dropzone" style="margin-top:16px;" tabindex="0" role="button">
+          <div class="dz-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+              <path d="M12 15V4M12 4l-4 4M12 4l4 4" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M4 15v3a2 2 0 002 2h12a2 2 0 002-2v-3" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" />
+            </svg></div>
+          <div class="dz-label">Drag &amp; drop or click to upload</div>
+          <div class="dz-hint">Accepted files: .jpg, .jpeg, .png · One clear, front-facing photo</div>
+        </div>
+        <input type="file" id="ae-file-input" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
+
+        <div class="preview-container" id="ae-preview-wrap" style="display:none;">
+          <img id="ae-preview-img" alt="Photo to estimate">
+          <button class="preview-remove" id="ae-preview-remove-btn" title="Remove">✕</button>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="ae-estimate-btn" disabled
+        style="width:100%; margin-top:18px; padding:15px; font-size:15px;">
+        Estimate Age
+      </button>
+      <div class="helper age-estimate-hint">Runs entirely on this machine. The photo is saved to
+        image_folder/age_estimation/ with the detected faces boxed.</div>
+
+      <!-- Result -->
+      <div class="card" id="ae-result" style="display:none; margin-top:22px;">
+        <div class="result-hero">
+          <div class="score-big" id="ae-result-value">—</div>
+          <div class="score-label" id="ae-result-label">Estimated Age</div>
+        </div>
+        <div class="helper" id="ae-result-meta" style="display:none; margin-top:10px;"></div>
+        <div class="helper" id="ae-result-faces" style="display:none; margin-top:6px;"></div>
+
+        <div id="ae-annotated-wrap" style="display:none; margin-top:16px;">
+          <div class="section-divider">Detected Faces</div>
+          <img id="ae-annotated-img" alt="Annotated result"
+            style="width:100%; border-radius:12px; margin-top:10px;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+  <script src="/static/js/particles.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      V.initAgeEstimatorCore("ae", { defaultMode: "camera" });
+    });
+  </script>
+</body>
+
+</html>

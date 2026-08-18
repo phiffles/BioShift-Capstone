@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BS BioShifting Admin — Log In</title>
+  <meta name="description" content="BS BioShifting age-invariant identity verification system — admin console login.">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
+</head>
+<body>
+
+<div class="boot-overlay" id="boot-overlay">
+  <div class="boot-inner">
+    <div class="boot-logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M7 5H5V7 M17 5H19V7 M7 19H5V17 M17 19H19V17" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 3 L7 8 L17 8 Z" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/>
+        <path d="M7 8 L9.5 10.5 L12 12 L14.5 10.5 L17 8" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/>
+        <path d="M7 8 L8 14 L16 14 L17 8" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/>
+        <path d="M8 14 L12 12 L16 14" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/>
+        <path d="M8 14 L12 17 L16 14" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/>
+        <path d="M12 12 L12 21" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/>
+        <path d="M8 14 L12 21 L16 14" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/>
+        <circle cx="12" cy="3" r="1.2" fill="#fff"/><circle cx="7" cy="8" r="1.2" fill="#fff"/><circle cx="17" cy="8" r="1.2" fill="#fff"/>
+        <circle cx="9.5" cy="10.5" r="0.8" fill="#fff"/><circle cx="14.5" cy="10.5" r="0.8" fill="#fff"/><circle cx="12" cy="12" r="1.2" fill="#fff"/>
+        <circle cx="8" cy="14" r="1.2" fill="#fff"/><circle cx="16" cy="14" r="1.2" fill="#fff"/><circle cx="12" cy="17" r="0.8" fill="#fff"/>
+        <circle cx="12" cy="21" r="1.2" fill="#fff"/>
+      </svg>
+    </div>
+    <div class="boot-title">ADMIN CONSOLE</div>
+    <div class="boot-lines" id="boot-lines"></div>
+    <div class="boot-progress-wrap"><div class="boot-progress-fill" id="boot-progress-fill"></div></div>
+    <div class="boot-pct" id="boot-pct">0%</div>
+    <div class="boot-skip-hint">click to skip</div>
+  </div>
+</div>
+
+<button class="icon-btn theme-toggle" title="Toggle Theme" style="position:absolute; top:20px; right:20px; z-index:100; background:var(--panel);">
+  <svg class="sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+  <svg class="moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+</button>
+<canvas id="particles-canvas"></canvas>
+<div class="tech-bg-container">
+  <div class="tech-face tech-face-legacy"></div>
+  <div class="tech-face tech-face-progressed"></div>
+</div>
+<div class="app-shell">
+  <div class="login-wrap">
+    <div class="login-border-glow">
+      <div class="login-card-inner">
+        <div style="text-align:center;margin-bottom:36px;">
+          <div class="login-logo">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 5H5V7 M17 5H19V7 M7 19H5V17 M17 19H19V17" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 3 L7 8 L17 8 Z" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/>
+              <path d="M7 8 L9.5 10.5 L12 12 L14.5 10.5 L17 8" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/>
+              <path d="M7 8 L8 14 L16 14 L17 8" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/>
+              <path d="M8 14 L12 12 L16 14" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/>
+              <path d="M8 14 L12 17 L16 14" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/>
+              <path d="M12 12 L12 21" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/>
+              <path d="M8 14 L12 21 L16 14" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/>
+              <circle cx="12" cy="3" r="1.2" fill="#fff"/>
+              <circle cx="7" cy="8" r="1.2" fill="#fff"/>
+              <circle cx="17" cy="8" r="1.2" fill="#fff"/>
+              <circle cx="9.5" cy="10.5" r="0.8" fill="#fff"/>
+              <circle cx="14.5" cy="10.5" r="0.8" fill="#fff"/>
+              <circle cx="12" cy="12" r="1.2" fill="#fff"/>
+              <circle cx="8" cy="14" r="1.2" fill="#fff"/>
+              <circle cx="16" cy="14" r="1.2" fill="#fff"/>
+              <circle cx="12" cy="17" r="0.8" fill="#fff"/>
+              <circle cx="12" cy="21" r="1.2" fill="#fff"/>
+            </svg>
+          </div>
+          <div class="h1" style="font-size:22px;">ASH Admin</div>
+          <div class="sub" style="margin-top:4px;">Operations & Discrepancy Console</div>
+        </div>
+
+        <form id="adminLoginForm">
+          <div class="field">
+            <label>Admin Email</label>
+            <input class="input" type="text" placeholder="Admin Email">
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input class="input" type="password" placeholder="Password">
+          </div>
+          <button class="btn btn-primary" type="submit" style="margin-top:6px; width:100%;">Log In to Console</button>
+        </form>
+
+        <div style="text-align:center;margin-top:24px;">
+          <a class="small-link" href="/">← Back to scan portal login</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/static/js/app.js"></script>
+<script src="/static/js/particles.js"></script>
+<script>
+(() => {
+  const overlay = document.getElementById('boot-overlay');
+  const linesEl = document.getElementById('boot-lines');
+  const fillEl = document.getElementById('boot-progress-fill');
+  const pctEl = document.getElementById('boot-pct');
+
+  const BOOT_LINES = [
+    "INITIALIZING BS BIOSHIFTING CORE...",
+    "LOADING OPERATIONS & DISCREPANCY CONSOLE...",
+    "ESTABLISHING SECURE LOCAL CHANNEL...",
+    "SYSTEM READY.",
+  ];
+  const AUTH_LINES = [
+    "VERIFYING ADMIN CREDENTIALS...",
+    "CHECKING OPERATIONS CLEARANCE...",
+    "ACCESS GRANTED.",
+  ];
+
+  (async () => {
+    await V.runConsoleSequence({ overlay, linesEl, fillEl, pctEl, lines: BOOT_LINES });
+    overlay.classList.add('hide');
+  })();
+
+  document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    overlay.classList.remove('hide');
+    await V.runConsoleSequence({ overlay, linesEl, fillEl, pctEl, lines: AUTH_LINES });
+    overlay.classList.add('hide');
+    window.location.href = '/admin';
+  });
+
+  // If this page is restored from the back-forward cache (e.g. the user
+  // hit Back), force the overlay hidden so it can never come back frozen
+  // mid-sequence.
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted) overlay.classList.add('hide');
+  });
+})();
+</script>
+</body>
+</html>

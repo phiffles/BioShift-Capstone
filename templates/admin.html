@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BS BioShifting Admin — Dashboard</title>
+  <meta name="description" content="BS BioShifting operations console — threshold configuration, discrepancy queue, and system overview.">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<canvas id="particles-canvas"></canvas>
+<div class="admin-shell">
+
+  <!-- Admin Topbar -->
+  <div class="admin-topbar">
+    <div class="topbar-left">
+      <a href="#" id="admin-brand-btn" class="brand" style="text-decoration:none; color:inherit;"><div class="mark"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 5H5V7 M17 5H19V7 M7 19H5V17 M17 19H19V17" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 3 L7 8 L17 8 Z" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/><path d="M7 8 L9.5 10.5 L12 12 L14.5 10.5 L17 8" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/><path d="M7 8 L8 14 L16 14 L17 8" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/><path d="M8 14 L12 12 L16 14" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/><path d="M8 14 L12 17 L16 14" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/><path d="M12 12 L12 21" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/><path d="M8 14 L12 21 L16 14" stroke="#fff" stroke-width="0.75" stroke-linejoin="round"/><circle cx="12" cy="3" r="1.2" fill="#fff"/><circle cx="7" cy="8" r="1.2" fill="#fff"/><circle cx="17" cy="8" r="1.2" fill="#fff"/><circle cx="9.5" cy="10.5" r="0.8" fill="#fff"/><circle cx="14.5" cy="10.5" r="0.8" fill="#fff"/><circle cx="12" cy="12" r="1.2" fill="#fff"/><circle cx="8" cy="14" r="1.2" fill="#fff"/><circle cx="16" cy="14" r="1.2" fill="#fff"/><circle cx="12" cy="17" r="0.8" fill="#fff"/><circle cx="12" cy="21" r="1.2" fill="#fff"/></svg></div>BioShifting Admin</a>
+    </div>
+    <div class="admin-nav">
+      <a href="#" data-tab="overview" class="active">Overview</a>
+      <a href="#" data-tab="threshold">Threshold Config</a>
+      <a href="#" data-tab="queue">Discrepancy Queue</a>
+      <a href="#" data-tab="training">Training Data</a>
+    </div>
+    <div class="admin-user">
+      <div class="avatar">OA</div>Ops Admin
+      <button class="icon-btn theme-toggle" title="Toggle Theme" style="margin-left:6px;">
+        <svg class="sun-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg class="moon-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <button class="icon-btn" id="admin-logout-btn" title="Log out" style="margin-left:6px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ OVERVIEW TAB ═══════════════ -->
+  <div class="admin-tab-content active" id="tab-overview">
+    <div class="admin-content">
+      <span class="eyebrow">Overview</span>
+      <h1 class="h1">System Overview</h1>
+      <div class="sub">Snapshot of verification activity.</div>
+
+      <div class="kpi-grid" id="kpi-grid">
+        <div class="kpi"><div class="n">—</div><div class="l">Total Scans</div></div>
+        <div class="kpi"><div class="n">—</div><div class="l">Pass Rate</div></div>
+        <div class="kpi"><div class="n">—</div><div class="l">Flagged</div></div>
+        <div class="kpi"><div class="n">—</div><div class="l">Threshold</div></div>
+      </div>
+
+      <div class="controls-row">
+        <div class="h2" style="margin-top:0;font-size:15px;">All Verifications</div>
+        <select id="history-sort" class="input" style="width:auto; padding:6px 12px; font-size:12px; border-radius:6px; background:var(--panel-2);">
+          <option value="newest">Newest First</option>
+          <option value="score_desc">Score: High to Low</option>
+          <option value="score_asc">Score: Low to High</option>
+        </select>
+      </div>
+      <div class="scan-card-list" id="recent-rows" style="margin-top:0;">
+        <div style="color:var(--text-faint);">Loading…</div>
+      </div>
+
+      <a class="small-link" href="/scan" style="margin-top:20px;">← Go to Scan Portal</a>
+    </div>
+  </div>
+
+  <!-- ═══════════════ THRESHOLD TAB ═══════════════ -->
+  <div class="admin-tab-content" id="tab-threshold">
+    <div class="admin-content">
+      <span class="eyebrow">Configuration</span>
+      <h1 class="h1">Confidence Threshold</h1>
+      <div class="sub">Set the minimum similarity score for a scan to pass. Lowering this increases matches but raises false positive risk.</div>
+
+      <div class="threshold-grid">
+        <div class="card" style="padding:24px;">
+          <label style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;">Minimum Match Confidence</label>
+          <div style="font-family:var(--f-mono);font-size:34px;color:var(--accent);margin:8px 0 16px;" id="threshold-val">75%</div>
+          <input type="range" min="40" max="95" value="75" id="threshold-slider">
+          <div class="slider-labels"><span>More matches (40%)</span><span>Stricter (95%)</span></div>
+          <div class="helper" style="margin-top:14px;">Scans scoring within 10 points below this line are automatically routed to the Discrepancy Queue for manual review.</div>
+          <button class="btn btn-primary" style="margin-top:18px;" id="threshold-save-btn">Save Threshold</button>
+        </div>
+
+        <div class="card">
+          <div class="h2" style="font-size:14px;">Why This Matters</div>
+          <div class="sub" style="margin-top:8px;">
+            Legacy photos vary widely in quality and age gap. A single fixed
+            threshold won't fit every case — this control lets operations
+            tune the accept/reject line as real-world results come in,
+            without needing a backend deployment.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ QUEUE TAB ═══════════════ -->
+  <div class="admin-tab-content" id="tab-queue">
+    <div class="admin-content">
+      <span class="eyebrow">Review Queue</span>
+      <h1 class="h1">Discrepancy Queue</h1>
+      <div class="sub">Borderline or failed verifications that need manual review.</div>
+
+      <div class="controls-row">
+        <div class="queue-filter-bar" id="queue-filter-bar" style="margin-top:0;">
+          <button class="q-filter active" data-filter="all">All <span class="qf-count">0</span></button>
+          <button class="q-filter" data-filter="pending">Pending <span class="qf-count">0</span></button>
+          <button class="q-filter" data-filter="failed">Failed <span class="qf-count">0</span></button>
+          <button class="q-filter" data-filter="resolved">Resolved <span class="qf-count">0</span></button>
+        </div>
+        <select id="queue-sort" class="input" style="width:auto; padding:6px 12px; font-size:12px; border-radius:6px; background:var(--panel-2); margin-bottom:0;">
+          <option value="newest">Newest First</option>
+          <option value="score_desc">Score: High to Low</option>
+          <option value="score_asc">Score: Low to High</option>
+        </select>
+      </div>
+
+      <div class="scan-card-list" id="queue-rows" style="margin-top:18px;">
+        <div style="color:var(--text-faint);">Loading…</div>
+      </div>
+
+      <!-- Case Review Panel (hidden until a row is clicked) -->
+      <div id="case-review-panel" style="display:none;margin-top:24px;">
+        <div class="card" style="padding:24px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+            <a class="small-link" href="#" style="margin:0;" onclick="document.getElementById('case-review-panel').style.display='none';return false;">← Back to queue</a>
+            <button class="btn btn-danger btn-sm" id="cr-delete-btn" style="padding:6px 12px;">Delete Case</button>
+          </div>
+          <span class="eyebrow" id="cr-case-id">SCN-0000</span>
+          <h2 class="h1" id="cr-case-name" style="font-size:20px;">Case</h2>
+
+          <!-- 3-column photos -->
+          <div class="compare-admin" style="margin-top:16px;">
+            <div class="box"><img id="cr-legacy-img" src="" alt="" onerror="this.style.opacity=0.3"><div class="cap">Legacy Reference</div></div>
+            <div class="box"><img id="cr-generated-img" src="" alt="" onerror="this.style.opacity=0.3"><div class="cap">Age-Progressed</div></div>
+            <div class="box"><img id="cr-live-img" src="" alt="" onerror="this.style.opacity=0.3"><div class="cap">Present Capture</div></div>
+          </div>
+
+          <!-- Stats -->
+          <div class="stat-grid" style="margin-top:16px;">
+            <div class="stat-box"><div class="val" id="cr-score">—</div><div class="lab">Similarity Score</div></div>
+            <div class="stat-box"><div class="val" id="cr-age">—</div><div class="lab">Person Age</div></div>
+          </div>
+
+          <!-- Resolve -->
+          <div style="margin-top:20px;" id="cr-resolve-area">
+            <div class="h2" style="font-size:14px;">Resolve This Case</div>
+            <div class="sub" style="margin-top:4px;">Manually confirm the correct outcome for this verification.</div>
+            <div class="btn-row" style="margin-top:14px;">
+              <button class="btn btn-primary" id="cr-approve-btn">Approve — Same Person</button>
+              <button class="btn btn-danger" id="cr-reject-btn">Reject — Not Same Person</button>
+            </div>
+            <div style="margin-top:14px;">
+              <label style="display:block;font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Reviewer Note</label>
+              <textarea class="input" id="cr-note" rows="2" placeholder="Reason for this decision…"></textarea>
+            </div>
+          </div>
+
+          <!-- Training Data Submission (Step 6) -->
+          <div style="margin-top:24px; padding-top:20px; border-top:1px solid var(--border-soft);" id="cr-training-area">
+            <div class="h2" style="font-size:14px;">Submit Training Data</div>
+            <div class="sub" style="margin-top:4px;">If this result was wrong, upload corrected, labeled photos so the backend team can retrain the model on this case.</div>
+
+            <div style="display:flex; gap:12px; margin-top:14px; flex-wrap:wrap;">
+              <div style="flex:1; min-width:160px;">
+                <label style="display:block;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Legacy Picture (Reference)</label>
+                <div class="dropzone" id="cr-train-old-dropzone" style="padding:20px;" tabindex="0" role="button">
+                  <div class="dz-label" style="font-size:12px;">Click to upload</div>
+                  <div class="dz-hint">.jpg, .jpeg, .png</div>
+                </div>
+                <input type="file" id="cr-train-old-input" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
+                <div class="preview-container" id="cr-train-old-preview-wrap" style="display:none; margin-top:8px;">
+                  <img id="cr-train-old-preview-img" alt="" style="max-height:140px;">
+                  <button class="preview-remove" id="cr-train-old-remove-btn" title="Remove">✕</button>
+                </div>
+              </div>
+              <div style="flex:1; min-width:160px;">
+                <label style="display:block;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Present Picture</label>
+                <div class="dropzone" id="cr-train-current-dropzone" style="padding:20px;" tabindex="0" role="button">
+                  <div class="dz-label" style="font-size:12px;">Click to upload</div>
+                  <div class="dz-hint">.jpg, .jpeg, .png</div>
+                </div>
+                <input type="file" id="cr-train-current-input" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
+                <div class="preview-container" id="cr-train-current-preview-wrap" style="display:none; margin-top:8px;">
+                  <img id="cr-train-current-preview-img" alt="" style="max-height:140px;">
+                  <button class="preview-remove" id="cr-train-current-remove-btn" title="Remove">✕</button>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top:14px;">
+              <label style="display:block;font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Note (optional)</label>
+              <textarea class="input" id="cr-train-note" rows="2" placeholder="Why was this result wrong?"></textarea>
+            </div>
+
+            <button class="btn btn-primary" id="cr-train-submit-btn" style="margin-top:14px;" disabled>Submit Training Pair</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ TRAINING DATA TAB ═══════════════ -->
+  <div class="admin-tab-content" id="tab-training">
+    <div class="admin-content">
+      <span class="eyebrow">Model Improvement</span>
+      <h1 class="h1">Training Data Submissions</h1>
+      <div class="sub">Labeled photo pairs submitted from flagged or corrected cases, queued for the backend team to use in retraining.</div>
+
+      <div class="scan-card-list" id="training-rows" style="margin-top:20px;">
+        <div style="color:var(--text-faint);">Loading…</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="/static/js/app.js"></script>
+<script src="/static/js/admin.js"></script>
+<script src="/static/js/particles.js"></script>
+</body>
+</html>
