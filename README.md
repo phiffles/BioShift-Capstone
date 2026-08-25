@@ -130,7 +130,6 @@ BioShift writes scan records to `history.db` and uploaded/generated images to `i
 | `age_estimator.py` | DEX age estimation and calibration |
 | `database.py` | Local SQLite persistence |
 | `templates/`, `static/` | Browser pages, styles, and JavaScript |
-| `DOCUMENTATION.md` | Technical architecture, API, model, and design notes |
 
 ## Third-party software and model terms
 

@@ -18,9 +18,40 @@ if SAM_DIR not in sys.path:
 import dlib
 from argparse import Namespace
 from SAM.models.psp import pSp
-from SAM.datasets.augmentations import AgeTransformer
-from SAM.scripts.align_all_parallel import get_landmark
-from SAM.utils.common import tensor2im
+
+
+class AgeTransformer:
+    """Add the normalized target-age channel expected by the SAM encoder."""
+
+    def __init__(self, target_age):
+        self.target_age = target_age
+
+    def __call__(self, img):
+        target_age = int(self.target_age) / 100
+        age_channel = target_age * torch.ones((1, img.shape[1], img.shape[2]))
+        return torch.cat((img, age_channel))
+
+
+def get_landmark(filepath, predictor):
+    """Return the 68 dlib landmarks for the last detected face."""
+
+    detector = dlib.get_frontal_face_detector()
+    img = dlib.load_rgb_image(filepath)
+    detections = detector(img, 1)
+    shape = None
+    for detection in detections:
+        shape = predictor(img, detection)
+    if shape is None:
+        raise ValueError("Could not find a face in the image.")
+    return np.array([[point.x, point.y] for point in shape.parts()])
+
+
+def tensor2im(tensor):
+    """Convert a SAM output tensor in [-1, 1] to a Pillow RGB image."""
+
+    array = tensor.cpu().detach().transpose(0, 2).transpose(0, 1).numpy()
+    array = np.clip((array + 1) / 2, 0, 1) * 255
+    return Image.fromarray(array.astype("uint8"))
 
 
 class FaceNotFoundError(Exception):
@@ -31,7 +62,7 @@ class FaceNotFoundError(Exception):
 def _align_face_with_quad(filepath, predictor):
     """
     Local re-implementation of the geometry in
-    SAM.scripts.align_all_parallel.align_face (same dlib landmarks, same
+    the original SAM FFHQ alignment routine (same dlib landmarks and
     shrink/crop/pad/QUAD-transform steps, so the 256x256 aligned crop fed to
     the neural net is unchanged) that additionally returns the aligned
     quad's 4 corners in the ORIGINAL image's pixel coordinates — captured
