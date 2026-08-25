@@ -3,6 +3,7 @@ SAM/pretrained_models/*.pt
 SAM/pretrained_models/*.pth
 SAM/shape_predictor_68_face_landmarks.dat
 face_reaging/face_landmarker.task
+*.part
 
 # Calibration dataset (UTKFace, ~107 MB tarball + extracted images).
 # The fitted curve itself, age_calibration/age_calibration.json, IS committed.
@@ -17,6 +18,7 @@ history.db.bak
 
 __pycache__/
 *.pyc
+.venv/
 
 # Local assistant settings
 .claude/
