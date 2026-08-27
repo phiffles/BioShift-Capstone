@@ -32,6 +32,40 @@ const V = (() => {
     });
   }
 
+  // Save exactly the part of the camera feed that is visible in a capture
+  // stage. The stage uses `object-fit: cover`, so drawing the whole video
+  // frame would produce a different crop from the one the user lined up.
+  function captureVisibleVideoFrame(video, canvas, stage) {
+    const sourceWidth = video.videoWidth;
+    const sourceHeight = video.videoHeight;
+    if (!sourceWidth || !sourceHeight || !stage) return false;
+
+    const targetAspect = stage.clientWidth / stage.clientHeight;
+    if (!Number.isFinite(targetAspect) || targetAspect <= 0) return false;
+
+    const sourceAspect = sourceWidth / sourceHeight;
+    let sx = 0, sy = 0, sw = sourceWidth, sh = sourceHeight;
+    if (sourceAspect > targetAspect) {
+      sw = sourceHeight * targetAspect;
+      sx = (sourceWidth - sw) / 2;
+    } else {
+      sh = sourceWidth / targetAspect;
+      sy = (sourceHeight - sh) / 2;
+    }
+
+    // Keep enough detail for processing while avoiding unnecessarily huge
+    // canvas allocations from high-resolution phone cameras.
+    canvas.width = Math.min(1080, Math.round(sw));
+    canvas.height = Math.round(canvas.width / targetAspect);
+    const ctx = canvas.getContext("2d");
+    ctx.imageSmoothingQuality = "high";
+    // The camera preview is mirrored, so save that same orientation.
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+    return true;
+  }
+
   // ── Dropzone wiring ──────────────────────────────────
   function wireDropzone(dropzoneEl, fileInputEl, onFile) {
     dropzoneEl.addEventListener("click", () => fileInputEl.click());
@@ -299,12 +333,7 @@ const V = (() => {
     });
 
     captureBtn.addEventListener("click", () => {
-      canvas.width = video.videoWidth || 480;
-      canvas.height = video.videoHeight || 640;
-      const ctx = canvas.getContext("2d");
-      ctx.translate(canvas.width, 0);
-      ctx.scale(-1, 1);
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      if (!captureVisibleVideoFrame(video, canvas, video.closest(".capture-stage"))) return;
       const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
       capturedImg.src = dataUrl;
       capturedImg.style.display = "block";
@@ -389,5 +418,5 @@ const V = (() => {
 
   document.addEventListener('DOMContentLoaded', initTheme);
 
-  return { $, $$, toast, fileToDataURL, wireDropzone, fmtTime, sleep, runConsoleSequence, initAgeEstimatorCore };
+  return { $, $$, toast, fileToDataURL, captureVisibleVideoFrame, wireDropzone, fmtTime, sleep, runConsoleSequence, initAgeEstimatorCore };
 })();

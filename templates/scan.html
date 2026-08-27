@@ -82,14 +82,33 @@
         <div class="direction-card selected" id="dir-older">
           <span class="dir-icon">⏩</span>
           <div class="dir-title">Age Progression</div>
-          <div class="dir-sub">Make the person look older</div>
+          <div class="age-flow" aria-label="A legacy photo is transformed into an older result">
+            <div class="age-flow-stage"><span class="age-portrait adult" aria-hidden="true"></span><span>Legacy</span></div>
+            <div class="age-flow-arrow" aria-hidden="true"><strong>&rarr;</strong><small>AI ages</small></div>
+            <div class="age-flow-stage"><span class="age-portrait older" aria-hidden="true"></span><span>Older</span></div>
+          </div>
+          <div class="dir-sub">Moves the person forward in time</div>
         </div>
         <div class="direction-card" id="dir-younger">
           <span class="dir-icon">⏪</span>
           <div class="dir-title">Age Regression</div>
-          <div class="dir-sub">Make the person look younger</div>
+          <div class="age-flow" aria-label="The present photo is transformed to match the younger legacy age">
+            <div class="age-flow-stage"><span class="age-portrait adult" aria-hidden="true"></span><span>Present</span></div>
+            <div class="age-flow-arrow" aria-hidden="true"><strong>&rarr;</strong><small>AI renews</small></div>
+            <div class="age-flow-stage"><span class="age-portrait younger" aria-hidden="true"></span><span>Legacy age</span></div>
+          </div>
+          <div class="dir-sub">Moves the person backward in time</div>
         </div>
       </div>
+      <section class="direction-steps" aria-labelledby="direction-steps-heading">
+        <div class="direction-steps-title" id="direction-steps-heading">How your scan works</div>
+        <div class="direction-steps-grid">
+          <div><b>1</b><span>Choose a direction</span></div>
+          <div><b>2</b><span>Add a legacy photo</span></div>
+          <div><b>3</b><span>Capture a present photo</span></div>
+          <div><b>4</b><span>Set the target age</span></div>
+        </div>
+      </section>
     </div>
   </div>
 
@@ -171,7 +190,7 @@
   <div class="step-panel" id="step-3">
     <div class="content form-content">
       <span class="eyebrow">Step 3 of 6 · Present Photo</span>
-      <h1 class="h1" id="step2-heading">Scan the Present Photo</h1>
+      <h1 class="h1 present-scan-heading" id="step2-heading">Scan the Present Photo</h1>
       <div class="sub" id="step2-sub">Center your face in the frame — the scan starts automatically.</div>
 
       <!-- Live Scan Mode (shown first) -->
@@ -195,7 +214,10 @@
           <div class="sub" style="color:var(--warn);margin-top:0;">Couldn't access your camera.</div>
           <button class="btn btn-primary" style="margin-top:10px;" onclick="document.getElementById('switch-to-upload').click()">Switch to Upload</button>
         </div>
-        <a class="small-link" href="#" id="switch-to-upload">Switch to upload instead</a>
+        <button class="mode-switch-button" type="button" id="switch-to-upload">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 16V3m0 0L7 8m5-5 5 5M5 14v5a2 2 0 002 2h10a2 2 0 002-2v-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Upload a photo instead
+        </button>
       </div>
 
       <!-- Upload Mode (fallback) -->
@@ -211,7 +233,10 @@
           <img id="live-upload-preview-img" alt="Present photo">
           <button class="preview-remove" id="live-upload-remove-btn" title="Remove">✕</button>
         </div>
-        <a class="small-link" href="#" id="switch-to-scan">Switch to live scan instead</a>
+        <button class="mode-switch-button" type="button" id="switch-to-scan">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7a2 2 0 012-2h3l1.5-2h3L15.5 5h2.5a2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="12.5" r="3" stroke="currentColor" stroke-width="2"/></svg>
+          Use live camera instead
+        </button>
       </div>
     </div>
 
@@ -236,10 +261,10 @@
     <div class="content form-content">
       <span class="eyebrow">Step 4 of 6 · Age Target</span>
       <h1 class="h1">Age Target</h1>
-      <div class="sub">Enter the age shown in the legacy photo, and the age you want to progress or regress it to.</div>
+      <div class="sub" id="age-mode-explanation">The legacy photo will be made older to match the present photo's age.</div>
 
       <div class="field" style="margin-top:22px;">
-        <label>Age in Legacy Photo</label>
+        <label id="current-age-label">Age in Legacy Photo (source)</label>
         <input class="input" type="number" id="current-age-input" min="1" max="100" value="10">
         <div class="helper">Not sure? Use the auto-estimate from your legacy photo below, or try the standalone Age Estimator from the Scan Portal.</div>
         <div class="age-estimate-hint" id="legacy-age-hint" style="display:none;">
@@ -251,7 +276,7 @@
 
       <div class="slider-group" style="margin-top:22px;">
         <div class="slider-header">
-          <label for="target-age-value">Target Age</label>
+          <label for="target-age-value" id="target-age-label">Age in Present Photo (target)</label>
           <input class="slider-value" type="number" id="target-age-value" value="40"
             min="1" max="100" step="1" inputmode="numeric" aria-label="Target age">
         </div>
@@ -350,7 +375,7 @@
       <div class="processing-steps detailed-steps" id="pipeline-steps" style="display:flex; flex-direction:column; gap:16px;">
         <div class="fqa-item"><span class="dot"></span>Loading photos</div>
         <div class="fqa-item"><span class="dot"></span>Detecting and aligning faces</div>
-        <div class="fqa-item"><span class="dot"></span>Running age progression</div>
+        <div class="fqa-item"><span class="dot"></span>Running age transformation</div>
         <div class="fqa-item"><span class="dot"></span>Extracting face embeddings</div>
         <div class="fqa-item"><span class="dot"></span>Scoring similarity</div>
         <div class="fqa-item"><span class="dot"></span>Saving result</div>

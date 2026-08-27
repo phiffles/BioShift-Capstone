@@ -9,7 +9,8 @@ Pillow==12.3.0
 insightface==1.0.1
 onnxruntime==1.27.0
 mediapipe==0.10.35
-dlib==20.0.0
+dlib-bin==20.0.1
 scipy==1.18.0
 cryptography==45.0.3
 gdown==6.1.0
+python-dotenv==1.2.3

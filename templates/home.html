@@ -103,7 +103,15 @@
       </button>
 
       <div id="home-list-section">
-        <div class="section-divider" style="margin-top:32px;">Recent Scans</div>
+        <section class="recent-scans-intro" aria-labelledby="recent-scans-heading">
+          <div class="recent-scans-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 101.7-5.25M3 4v5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <h2 class="h2" id="recent-scans-heading">Recent Scans</h2>
+            <p>Review your latest identity-verification checks, compare their confidence scores, and open a scan for its full result.</p>
+          </div>
+        </section>
         <div class="scan-card-list" id="home-scan-list">
           <div style="color:var(--text-faint);">Loading…</div>
         </div>

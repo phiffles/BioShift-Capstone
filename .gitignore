@@ -20,5 +20,10 @@ __pycache__/
 *.pyc
 .venv/
 
+# Local environment variables and credentials. Keep only the safe template.
+.env
+.env.*
+!.env.example
+
 # Local assistant settings
 .claude/

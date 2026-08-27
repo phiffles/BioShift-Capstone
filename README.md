@@ -50,6 +50,32 @@ Wait for the startup messages, then open <http://127.0.0.1:5000>. Stop the serve
 
 After the first installation, `start.bat` is the only command normally needed.
 
+## Environment variables and API keys
+
+Never put API keys, access tokens, passwords, or other credentials directly in
+the source code. Copy `.env.example` to `.env` and place local secrets in that
+file. `.env` and its local variants are ignored by Git; `.env.example` is a
+safe template and must contain placeholder values only.
+
+```powershell
+Copy-Item .env.example .env
+```
+
+`server.py` loads `.env` during startup. Python integrations must read each
+value from the environment and fail clearly when a required value is missing:
+
+```python
+import os
+
+api_key = os.getenv("SERVICE_API_KEY")
+if not api_key:
+    raise RuntimeError("SERVICE_API_KEY is not configured")
+```
+
+Do not expose a secret to browser JavaScript or include it in an HTTP response.
+If a secret was ever committed, remove it from Git history and rotate it at the
+provider; adding it to `.gitignore` afterward is not sufficient.
+
 ## Download without Git
 
 If you do not want to install Git, use GitHub's **Code > Download ZIP** button, extract the ZIP, open the extracted folder, and double-click `install.bat`. When installation finishes, double-click `start.bat`.

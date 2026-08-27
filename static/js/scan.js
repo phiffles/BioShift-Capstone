@@ -5,7 +5,7 @@
    ============================================================ */
 (() => {
   "use strict";
-  const { $, $$, toast, wireDropzone, fmtTime, sleep } = V;
+  const { $, $$, toast, wireDropzone, fmtTime, sleep, captureVisibleVideoFrame } = V;
 
   // ── State ──────────────────────────────────────────────
   const MAX_LEGACY_PHOTOS = 5;
@@ -161,6 +161,17 @@
       S.direction = direction;
       btnOlder.classList.toggle("selected", direction === "older");
       btnYounger.classList.toggle("selected", direction === "younger");
+      const regression = direction === "younger";
+      const explanation = $("#age-mode-explanation");
+      const currentLabel = $("#current-age-label");
+      const targetLabel = $("#target-age-label");
+      if (explanation) explanation.textContent = regression
+        ? "The present photo will be made younger to match the legacy photo, which remains unchanged for comparison."
+        : "The legacy photo will be made older to match the present photo's age.";
+      if (currentLabel) currentLabel.textContent = regression
+        ? "Age in Legacy Photo (target)" : "Age in Legacy Photo (source)";
+      if (targetLabel) targetLabel.textContent = regression
+        ? "Age in Present Photo (source)" : "Age in Present Photo (target)";
       goTo(2);
     }
 
@@ -311,12 +322,7 @@
 
     function captureLegacyFrame() {
       if (S.legacyFiles.length >= MAX_LEGACY_PHOTOS) return;
-      const vw = legacyVid.videoWidth || 480;
-      const vh = legacyVid.videoHeight || 640;
-      legacyCanvas.width = vw;
-      legacyCanvas.height = vh;
-      const ctx = legacyCanvas.getContext("2d");
-      ctx.drawImage(legacyVid, 0, 0, vw, vh);
+      if (!captureVisibleVideoFrame(legacyVid, legacyCanvas, legacyVid.closest(".capture-stage"))) return;
       const dataUrl = legacyCanvas.toDataURL("image/jpeg", 0.9);
 
       // Show captured preview
@@ -569,34 +575,7 @@
   function captureFrame() {
     const vid = $("#live-video");
     const canvas = $("#fqa-canvas");
-
-    if (latestFaceBox) {
-      // Map the box back from the downscaled FQA frame into video pixels.
-      const [sbx, sby, sbw, sbh] = latestFaceBox;
-      const bx = sbx / fqaScale, by = sby / fqaScale;
-      const bw = sbw / fqaScale, bh = sbh / fqaScale;
-
-      // Never upscale: on a 1080p stream the face crop is usually larger than
-      // 512, so this downsamples (sharp) instead of interpolating (soft).
-      const out = Math.min(768, Math.max(256, Math.round(Math.min(bw, bh))));
-      canvas.width = out;
-      canvas.height = out;
-      const ctx = canvas.getContext("2d");
-      ctx.imageSmoothingQuality = "high";
-
-      // Mirror the output since the user expects a mirrored live preview
-      ctx.translate(canvas.width, 0);
-      ctx.scale(-1, 1);
-
-      ctx.drawImage(vid, bx, by, bw, bh, 0, 0, out, out);
-    } else {
-      canvas.width = vid.videoWidth || 480;
-      canvas.height = vid.videoHeight || 640;
-      const ctx = canvas.getContext("2d");
-      ctx.translate(canvas.width, 0);
-      ctx.scale(-1, 1);
-      ctx.drawImage(vid, 0, 0, canvas.width, canvas.height);
-    }
+    if (!captureVisibleVideoFrame(vid, canvas, vid.closest(".capture-stage"))) return;
 
     const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
     showCaptured(dataUrl);
@@ -982,7 +961,7 @@
     // Stats
     $("#res-age").textContent = s.target_age || "—";
     const gap = s.target_age && s.current_age ? Math.abs(s.target_age - s.current_age) : "—";
-    $("#res-gap").textContent = gap !== "—" ? (s.target_age > s.current_age ? `+${gap} yrs` : `-${gap} yrs`) : "—";
+    $("#res-gap").textContent = gap !== "—" ? (s.direction === "younger" ? `-${gap} yrs` : `+${gap} yrs`) : "—";
     $("#res-threshold").textContent = s.threshold_used ? s.threshold_used + "%" : "—";
     $("#res-status").textContent = s.status || "—";
   }

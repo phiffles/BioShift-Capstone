@@ -19,10 +19,11 @@ MODULES = {
     "insightface": "InsightFace",
     "onnxruntime": "ONNX Runtime",
     "mediapipe": "MediaPipe",
-    "dlib": "dlib",
+    "dlib": "dlib (prebuilt dlib-bin package)",
     "scipy": "SciPy",
     "cryptography": "cryptography",
     "gdown": "gdown",
+    "dotenv": "python-dotenv",
 }
 
 MODEL_FILES = {

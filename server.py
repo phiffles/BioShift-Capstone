@@ -10,6 +10,11 @@ Runs 100 % locally with SQLite. One command:
 """
 
 import os
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path=Path(__file__).with_name(".env"))
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 import sys
@@ -19,8 +24,8 @@ import uuid
 import io
 import threading
 import traceback
+import shutil
 from datetime import datetime
-from pathlib import Path
 from math import atan2, degrees
 
 import cv2
@@ -526,7 +531,7 @@ def _cosine_to_pct(cosine_sim):
 def api_scan_submit():
     """
     Full pipeline: receive one-or-more legacy photos + a live photo →
-    age-progress each legacy photo → verify each against the live photo →
+    progress legacy photos or regress the live photo → verify the pair →
     keep the best-scoring pair as the official result → save → route.
     Form fields: legacy_images (file, repeatable), live_image (file),
                  primary_index (int), current_age/target_age (int),
@@ -558,12 +563,11 @@ def api_scan_submit():
         if direction not in ("older", "younger"):
             direction = "older" if target_age > current_age else "younger"
 
-        # Amplify the target age to produce a stronger visual effect
-        # e.g., aging from 10 to 18 (delta 8) becomes aging to 22 (delta 12)
-        age_gap = target_age - current_age
-        amplified_target = int(current_age + (age_gap * 1.5))
-        # Ensure it stays within reasonable bounds (0 to 100)
-        amplified_target = max(0, min(100, amplified_target))
+        # Progression transforms the legacy photo to the present/target age.
+        # Regression transforms the present photo back to the legacy age,
+        # which is stored in current_age by the form.
+        requested_model_age = current_age if direction == "younger" else target_age
+        model_target_age = max(0, min(100, requested_model_age))
 
         threshold_val = float(database.get_setting("threshold", "75"))
 
@@ -578,24 +582,65 @@ def api_scan_submit():
 
         emb_live = _get_embedding(live_path) if insightface_ok else None
 
-        # 1) Age-progress + score every uploaded legacy photo
+        # Regression deliberately works in the opposite direction: make the
+        # present/live capture younger once, then compare that result with each
+        # untouched legacy reference.  The generated image is shared by all
+        # legacy candidates in this scan.
+        regressed_live_path = regressed_live_url = None
+        regressed_live_embedding = None
+        regressed_live_face_detected = False
+        if direction == "younger":
+            try:
+                regressed_live_img, regressed_live_meta = sam_model.process_image(
+                    image=live_path, target_age=model_target_age,
+                )
+            except sam_wrapper.FaceNotFoundError:
+                regressed_live_img, regressed_live_meta = live_img, {"face_detected": False}
+            regressed_live_face_detected = regressed_live_meta.get("face_detected", False)
+            regressed_dest, regressed_live_url = build_image_path(
+                "generated", scan_id=scan_id, index=0,
+            )
+            regressed_live_img.save(str(regressed_dest), quality=92)
+            regressed_live_path = str(regressed_dest.resolve())
+            if insightface_ok:
+                regressed_live_embedding = _get_embedding(regressed_live_path)
+
+        # 1) Transform and score every uploaded legacy photo.
         candidates = []
         for idx, file_storage in enumerate(legacy_files):
             legacy_dest, _ = build_image_path("legacy", scan_id=scan_id, index=idx)
             legacy_path, legacy_url, legacy_img = _save_upload(file_storage, legacy_dest)
 
-            try:
-                result_img, gen_meta = sam_model.process_image(image=legacy_path, target_age=amplified_target)
-            except sam_wrapper.FaceNotFoundError:
-                result_img, gen_meta = legacy_img, {"face_detected": False}
-            face_detected = gen_meta.get("face_detected", False)
-            # same index as the legacy photo it came from
-            gen_dest, gen_url = build_image_path("generated", scan_id=scan_id, index=idx)
-            result_img.save(str(gen_dest), quality=92)
-            gen_path = str(gen_dest.resolve())
+            if direction == "younger":
+                # The generated asset is the regressed live capture; do not
+                # alter the legacy reference in regression mode.
+                gen_path = regressed_live_path
+                gen_url = regressed_live_url
+                face_detected = regressed_live_face_detected
+            else:
+                try:
+                    result_img, gen_meta = sam_model.process_image(image=legacy_path, target_age=model_target_age)
+                except sam_wrapper.FaceNotFoundError:
+                    result_img, gen_meta = legacy_img, {"face_detected": False}
+                face_detected = gen_meta.get("face_detected", False)
+                # same index as the legacy photo it came from
+                gen_dest, gen_url = build_image_path("generated", scan_id=scan_id, index=idx)
+                result_img.save(str(gen_dest), quality=92)
+                gen_path = str(gen_dest.resolve())
 
             cosine = sim_score = dist = match_source = None
-            if emb_live is not None:
+            if direction == "younger":
+                try:
+                    emb_legacy = _get_embedding(legacy_path)
+                    if regressed_live_embedding is not None and emb_legacy is not None:
+                        cosine = float(np.dot(regressed_live_embedding, emb_legacy))
+                        sim_score = _cosine_to_pct(cosine)
+                        dist = round(1 - cosine, 4)
+                        match_source = "regressed_live"
+                        print(f"  InsightFace [{idx}] regressed live→legacy cosine={cosine:.4f}")
+                except Exception as vex:
+                    print(f"  InsightFace error on photo [{idx}] (non-fatal): {vex}")
+            elif emb_live is not None:
                 try:
                     emb_gen = _get_embedding(gen_path)
                     emb_legacy = _get_embedding(legacy_path)
@@ -684,6 +729,26 @@ def api_history():
 
 @app.route("/api/scan/<int:scan_id>", methods=["DELETE"])
 def api_scan_delete(scan_id):
+    # Each scan owns a single, ID-named directory containing its legacy,
+    # current, and generated images.  Do not derive this path from a database
+    # value: keeping it ID-based ensures a delete can never escape IMAGE_DIR.
+    scan_dir = (IMAGE_DIR / str(scan_id)).resolve()
+    try:
+        scan_dir.relative_to(IMAGE_DIR.resolve())
+    except ValueError:
+        return jsonify({"error": "Invalid scan path"}), 400
+
+    if database.get_scan(scan_id) is None:
+        return jsonify({"error": "Scan not found"}), 404
+
+    try:
+        if scan_dir.exists():
+            shutil.rmtree(scan_dir)
+    except OSError as exc:
+        # Keep the database record when image erasure fails, so the case can be
+        # retried instead of falsely appearing fully deleted.
+        return jsonify({"error": f"Could not delete scan images: {exc}"}), 500
+
     database.delete_scan(scan_id)
     return jsonify({"success": True})
 
